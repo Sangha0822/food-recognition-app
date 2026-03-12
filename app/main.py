@@ -1,0 +1,79 @@
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
+from sqlmodel import Session, select, desc
+from app.database import create_db_and_tables
+from app.models import FoodEntry, FoodEntryCreate
+from app.database import get_session
+from pathlib import Path
+import uuid
+from fastapi.staticfiles import StaticFiles
+from typing import Optional
+from sqlalchemy import func
+
+UPLOAD_DIR = Path("uploads")
+app = FastAPI()
+UPLOAD_DIR.mkdir(parents = True, exist_ok = True)
+app.mount("/static", StaticFiles(directory="uploads"), name="static")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
+
+@app.on_event("startup") # Creates the DB when it starts
+def on_startup():
+    create_db_and_tables()
+
+@app.get("/health") # Testing 
+def health_check():
+    return {"ok": True}
+
+@app.post("/entries") # Adds JSON format into the DB
+def create_food_entry(entry: FoodEntryCreate, session: Session =Depends(get_session)):
+    food = FoodEntry(final_label = entry.final_label)
+    session.add(food)
+    session.commit()
+    session.refresh(food)
+    return food
+
+@app.get("/entries") # Gets the DB entries
+def read_food_entries(label: Optional[str] = None, offset: int = 0, limit: int = 10, session: Session = Depends(get_session)):
+    dicFoodEntries = {}
+
+    statement = select(FoodEntry)
+    if label:
+        statement = statement.where(FoodEntry.final_label.ilike(f"%{label}%"))
+    count_statement = select(func.count()).select_from(statement.subquery())
+    result_statement = statement.order_by(desc(FoodEntry.id)).offset(offset).limit(limit)
+    results = session.exec(result_statement).all()
+    total = session.exec(count_statement).one()
+
+    dicFoodEntries["total"] = total
+    dicFoodEntries["offset"] = offset
+    dicFoodEntries["limit"] = limit
+    dicFoodEntries["entries"] = results
+    dicFoodEntries["has_next"] = True if total - offset > limit else False
+    return dicFoodEntries
+
+@app.delete("/entries/{entry_id}")
+def delete_entry(entry_id: int, session: Session = Depends(get_session)):
+    entry = session.get(FoodEntry, entry_id)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    else:
+        if entry.image_path is not None:
+            Path(entry.image_path).unlink(missing_ok=True)
+        session.delete(entry)
+        session.commit()
+
+    
+@app.post("/uploads")# Uploads the image to DB (adds Multipart Form data so it should not be merged with entries saving function)
+def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form(None), session: Session =Depends(get_session)):
+    extension = Path(file.filename).suffix
+    uuidName = str(uuid.uuid4())
+    newFileName = uuidName + extension
+    file_path = UPLOAD_DIR / newFileName
+    with open(file_path, "wb") as buffer:
+        content = file.file.read()
+        buffer.write(content)
+    food = FoodEntry(image_path = str(file_path), final_label = final_label)
+    session.add(food)
+    session.commit()
+    session.refresh(food)
+    return food

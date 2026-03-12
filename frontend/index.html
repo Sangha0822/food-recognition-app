@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food AI Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="max-w-4xl mx-auto p-6">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">My Food Journal</h1>
+            </header>
+
+        <div class="mb-6">
+            <input type="text" id="search-input" placeholder="Search for food (e.g. Pizza)" 
+                   class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div id="food-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            </div>
+
+        <div class="mt-8 flex justify-center">
+            <button id="load-more" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition hidden">
+                Load More
+            </button>
+        </div>
+    </div>
+    <script>
+        // We'll write the fetch logic next!
+    </script>
+</body>
+    
+</body>
+</html>
