@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
 from sqlmodel import Session, select, desc
 from app.database import create_db_and_tables
@@ -9,16 +10,16 @@ from fastapi.staticfiles import StaticFiles
 from typing import Optional
 from sqlalchemy import func
 
-UPLOAD_DIR = Path("uploads")
-app = FastAPI()
-UPLOAD_DIR.mkdir(parents = True, exist_ok = True)
-app.mount("/static", StaticFiles(directory="uploads"), name="static")
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
-
-@app.on_event("startup") # Creates the DB when it starts
-def on_startup():
+@asynccontextmanager # Creates the DB when it starts
+async def lifespan(app: FastAPI):
     create_db_and_tables()
+    yield
+
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(parents = True, exist_ok = True)
+app = FastAPI(lifespan = lifespan)
+
 
 @app.get("/health") # Testing 
 def health_check():
@@ -77,3 +78,6 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
     session.commit()
     session.refresh(food)
     return food
+
+app.mount("/static", StaticFiles(directory="uploads"), name="static")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
