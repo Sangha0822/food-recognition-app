@@ -16,14 +16,14 @@
         <div class="mb-6">
             <input type="text" id="search-input" placeholder="Search for food (e.g. Pizza)" 
                    class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button class= "rounded-md border border-blue-300" onclick="testFetch()">Fetch Food</button> <br>
         </div>
 
         <div id="food-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
             </div>
-
+        
         <div class="mt-8 flex justify-center">
             <button id="load-more" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition hidden">
-                Load More
             </button>
         </div>
     </div>

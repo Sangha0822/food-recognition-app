@@ -9,6 +9,7 @@ import uuid
 from fastapi.staticfiles import StaticFiles
 from typing import Optional
 from sqlalchemy import func
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager # Creates the DB when it starts
@@ -16,21 +17,18 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
     yield
 
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(parents = True, exist_ok = True)
 app = FastAPI(lifespan = lifespan)
 
-
-
-from fastapi.middleware.cors import CORSMiddleware
-
-app.add_middleware(
+app.add_middleware( 
     CORSMiddleware,
     allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(parents = True, exist_ok = True)
 
 @app.get("/health") # Testing 
 def health_check():
@@ -63,7 +61,7 @@ def read_food_entries(label: Optional[str] = None, offset: int = 0, limit: int =
     dicFoodEntries["has_next"] = True if total - offset > limit else False
     return dicFoodEntries
 
-@app.delete("/entries/{entry_id}")
+@app.delete("/entries/{entry_id}") # Deleting unique ID datas from the DB
 def delete_entry(entry_id: int, session: Session = Depends(get_session)):
     entry = session.get(FoodEntry, entry_id)
     if not entry:

@@ -1,7 +1,11 @@
 async function testFetch() {
     try {
-        const response = await fetch("https://pokeapi.co/api/v2/pokemon/charizard");
-        const data = await response.json(); // Don't forget to unbox the JSON!
+        const response = await fetch("http://127.0.0.1:8000/entries");
+        if(!response.ok){
+            throw new Error("Could not fetch resource");
+        }
+        
+        const data = await response.json();
         console.log(data);
     } catch (error) {
         console.error("Fetch failed:", error);
