@@ -27,3 +27,27 @@ async function testFetch() {
     }
 }
 testFetch();
+
+async function uploadFood() {
+    const fileInput = document.getElementById("file-input");
+    const labelInput = document.getElementById("label-input");
+
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Please choose an image first!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("final_label", labelInput.value);
+
+    const response = await fetch("http://127.0.0.1:8000/uploads", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+    console.log("Uploaded!", data);
+    testFetch();
+}
