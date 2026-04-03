@@ -1,6 +1,7 @@
 async function testFetch() {
     try {
-        const response = await fetch("http://127.0.0.1:8000/entries");
+        const searchTerm = document.getElementById("search-input").value;
+        const response = await fetch(`http://127.0.0.1:8000/entries?label=${searchTerm}`);
         if (!response.ok) {
             throw new Error("Could not fetch resource");
         }
