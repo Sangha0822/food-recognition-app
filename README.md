@@ -1,21 +1,38 @@
-# Food Recognition and Tracking API
+# Food Recognition and Tracking App
 
-A full-stack food logging application designed to bridge the gap between nutrition tracking and Computer Vision.
+A full-stack AI-powered food journal that automatically identifies food from photos 
+and logs them to a personal database.
 
-## The Mission
-Built during my military service to maintain engineering discipline and prepare for a career in ML and SWE. This project focuses on high-performance backend architecture and seamless frontend integration.
+## The Story
+Built during military service to maintain engineering discipline and prepare for a 
+career in ML and SWE. Started with zero API or database experience — learned by 
+building, debugging, and iterating on a real working product.
+
+## Live Features
+- 📸 Upload a food photo → AI automatically identifies it using Gemini Vision API
+- 🔍 Search your food journal in real time
+- 🗂️ Paginated food entries with image display
+- 🕐 Automatic timestamp logging for every entry
+- 🗑️ Delete entries with automatic image cleanup
 
 ## Tech Stack
-- Backend: Python, FastAPI, SQLModel (SQLite)
-- Frontend: JavaScript (Vanilla), Tailwind CSS
-- Upcoming: PyTorch/TensorFlow ML Pipeline integration
+- **Backend:** Python, FastAPI, SQLModel (SQLite)
+- **Frontend:** JavaScript (Vanilla), Tailwind CSS
+- **AI:** Google Gemini Vision API for food recognition
+- **Infrastructure:** REST API, CORS, UUID file management, multipart form handling
 
-## Project Highlights
-- Image Handling: Unique file naming with UUIDs and local filesystem storage.
-- Optimized API: Implemented pagination and search filtering for high-speed data retrieval.
-- Modern Infrastructure: Full CORS support for decoupled frontend/backend communication.
+## What I Learned
+- Designing and consuming REST APIs from scratch
+- Database modeling with SQLModel and SQLite
+- Connecting a decoupled frontend to a backend via fetch()
+- Integrating third-party AI vision APIs
+- Environment variable management and API key security
+- Git workflow with issues, commit history, and proper .gitignore
 
 ## Roadmap
-- [ ] Connect Frontend fetch() bridge (In Progress)
-- [ ] Implement JWT User Authentication
-- [ ] Integrate ML inference model for food identification
+- [ ] JWT User Authentication (login/signup)
+- [ ] AWS S3 for cloud image storage
+- [ ] Load More pagination on frontend
+- [ ] Train custom food recognition model on MIT Food-101 dataset (PyTorch)
+- [ ] Calorie estimation per food entry
+- [ ] Loading spinner for upload UX
