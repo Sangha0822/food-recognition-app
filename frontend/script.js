@@ -1,14 +1,21 @@
-async function testFetch() {
+let currentOffset = 0
+
+async function testFetch(append = false) {
     try {
         const searchTerm = document.getElementById("search-input").value;
-        const response = await fetch(`http://127.0.0.1:8000/entries?label=${searchTerm}`);
+        const response = await fetch(`http://127.0.0.1:8000/entries?label=${searchTerm}&offset=${currentOffset}&limit=10`);
         if (!response.ok) {
             throw new Error("Could not fetch resource");
         }
 
         const data = await response.json();
         const gridContainer = document.getElementById("food-grid");
-        gridContainer.innerHTML = "";
+
+        if (!append) {
+            currentOffset = 0;
+            gridContainer.innerHTML = "";
+        }
+
         const entries = data.entries;
         entries.forEach(food => {
             const cardHTML = `
@@ -23,6 +30,14 @@ async function testFetch() {
 
         const searchBox = document.getElementById("search-input");
         console.log(data);
+        
+        const loadMoreBtn = document.getElementById("load-more");
+        if (data.has_next) {
+            loadMoreBtn.classList.remove("hidden");
+        } else {
+            loadMoreBtn.classList.add("hidden");
+        }
+
     } catch (error) {
         console.error("Fetch failed:", error);
     }
@@ -40,8 +55,8 @@ async function uploadFood() {
         return;
     }
 
-    button.textContent = "Identifying food...";  
-    button.disabled = true;                   
+    button.textContent = "Identifying food...";
+    button.disabled = true;
 
     const formData = new FormData();
     formData.append("file", file);
@@ -57,4 +72,9 @@ async function uploadFood() {
     button.textContent = "Upload Food";
     button.disabled = false;
     testFetch();
+}
+
+function loadMore() {
+    currentOffset += 10;
+    testFetch(append = true);
 }
