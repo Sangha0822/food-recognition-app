@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from typing import Optional
 from sqlalchemy import func
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
+import google.genai as genai
 from dotenv import load_dotenv
 import os
 
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     yield
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI(lifespan = lifespan)
 
@@ -99,7 +99,12 @@ app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 def identify_food(image_path: str) -> str:
-    model = genai.GenerativeModel("gemini-2.5-flash")
-    image = genai.upload_file(image_path)
-    response = model.generate_content([image, "What food is this? Reply with just the food name, nothing else."])
+    image_bytes = Path(image_path).read_bytes()
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[
+            genai.types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+            "What food is this? Reply with just the food name, nothing else."
+        ]
+    )
     return response.text.strip()

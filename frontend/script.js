@@ -19,18 +19,18 @@ async function testFetch(append = false) {
         const entries = data.entries;
         entries.forEach(food => {
             const cardHTML = `
-                <div class="bg-white rounded-lg shadow-md p-4">
-                    <img src="${food.image_url}" class="w-full h-48 object-cover rounded-md mb-4">
-                    
-                    <h2 class="text-xl font-semibold text-gray-800 text-center">${food.final_label}</h2>
-                </div>
-            `;
+        <div class="bg-gray-800 rounded-lg shadow-md p-4">
+            <img src="${food.image_url}" class="w-full h-48 object-cover rounded-md mb-4">
+            <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
+            <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleString()}</p>
+        </div>
+        `;
             gridContainer.innerHTML += cardHTML;
         });
 
         const searchBox = document.getElementById("search-input");
         console.log(data);
-        
+
         const loadMoreBtn = document.getElementById("load-more");
         if (data.has_next) {
             loadMoreBtn.classList.remove("hidden");
@@ -71,6 +71,7 @@ async function uploadFood() {
     console.log("Uploaded!", data);
     button.textContent = "Upload Food";
     button.disabled = false;
+    currentOffset = 0;
     testFetch();
 }
 
