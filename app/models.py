@@ -23,5 +23,10 @@ class FoodEntry(SQLModel, table=True): # Database table class
 class FoodEntryCreate(SQLModel): # Request body class for creating a food entry
     final_label: Optional[str] = None
 
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str
+    hashed_password: str
+    created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
