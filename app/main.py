@@ -13,6 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import google.genai as genai
 from dotenv import load_dotenv
 import os
+import auth
+from models import User 
 
 @asynccontextmanager # Creates the DB when it starts
 async def lifespan(app: FastAPI):
@@ -95,6 +97,18 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
     session.refresh(food)
     return food
 
+@app.post("/register")
+def register(email: str, password: str, session: Session = Depends(get_session)):
+    emailExist = session.exec(select(User).where(User.email == email)).first()
+    if emailExist:    
+        raise HTTPException(status_code=400, detail="Email is already registered")
+    hashPWD = auth.hash_password(password)
+    user = User(email = email, hashed_password = hashPWD)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return {"message": "User registered successfully"}
+
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
@@ -108,3 +122,4 @@ def identify_food(image_path: str) -> str:
         ]
     )
     return response.text.strip()
+
