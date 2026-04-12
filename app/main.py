@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
 from sqlmodel import Session, select, desc
 from app.database import create_db_and_tables
-from app.models import FoodEntry, FoodEntryCreate
+from app.models import FoodEntry, FoodEntryCreate, UserCreate
 from app.database import get_session
 from pathlib import Path
 import uuid
@@ -112,12 +112,12 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
     return food
 
 @app.post("/register")
-def register(email: str, password: str, session: Session = Depends(get_session)):
-    emailExist = session.exec(select(User).where(User.email == email)).first()
+def register(user_data: UserCreate, session: Session = Depends(get_session)):
+    emailExist = session.exec(select(User).where(User.email == user_data.email)).first()
     if emailExist:    
         raise HTTPException(status_code=400, detail="Email is already registered")
-    hashPWD = auth.hash_password(password)
-    user = User(email = email, hashed_password = hashPWD)
+    hashPWD = auth.hash_password(user_data.password)
+    user = User(email = user_data.email, hashed_password = hashPWD)
     session.add(user)
     session.commit()
     session.refresh(user)
