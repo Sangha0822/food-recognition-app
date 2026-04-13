@@ -10,50 +10,77 @@
 
 <body class="bg-gray-900 min-h-screen">
     <div class="max-w-4xl mx-auto p-6">
-        
+
         <header class="mb-8">
             <div class="bg-gray-800 rounded-2xl shadow-sm p-6 flex items-center gap-4">
-                <div class="bg-gray-700 rounded-xl p-3 flex items-center justify-center" style="width:56px; height:56px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" width="32" height="32">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                <div class="bg-gray-700 rounded-xl p-3 flex items-center justify-center"
+                    style="width:56px; height:56px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" width="32"
+                        height="32">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold text-white">My Food Journal</h1>
                     <p class="text-gray-400 text-sm">Powered by Gemini Vision AI</p>
                 </div>
+                <button onclick="logout()" id="logout-btn"
+                    class="ml-auto bg-gray-700 text-gray-300 px-3 py-1 rounded-lg hover:bg-gray-600 text-sm hidden">
+                    Logout
+                </button>
             </div>
         </header>
 
-        <div class="mb-6">
-            <input type="text" id="search-input" placeholder="Search for food (e.g. Pizza)" 
-                   onkeyup="testFetch()"
-                   class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500">
+        <!-- Auth Section (shown when logged out) -->
+        <div id="auth-section" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-md hidden">
+            <div class="flex gap-4 mb-4">
+                <button onclick="showLogin()" id="login-tab"
+                    class="text-green-400 font-semibold border-b-2 border-green-400 pb-1">Login</button>
+                <button onclick="showRegister()" id="register-tab" class="text-gray-400 pb-1">Register</button>
+            </div>
+            <input type="email" id="auth-email" placeholder="Email"
+                class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
+            <input type="password" id="auth-password" placeholder="Password"
+                class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
+            <button id="auth-btn" onclick="submitAuth()"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Login</button>
+            <p id="auth-error" class="text-red-400 text-sm mt-2 hidden"></p>
         </div>
 
-        <div class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
-            <h2 class="text-lg font-semibold mb-3 text-gray-300">Add Food</h2>
-            <input type="file" id="file-input" accept="image/*" class="mb-3 text-gray-400">
-            <input type="text" id="label-input" placeholder="What food is this? (optional)" 
-                   class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
-            <button id="upload-btn" onclick="uploadFood()" 
+        <!-- Main App (shown when logged in) -->
+        <div id="main-app" class="hidden">
+
+            <div class="mb-6">
+                <input type="text" id="search-input" placeholder="Search for food (e.g. Pizza)" onkeyup="testFetch()"
+                    class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+
+            <div class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
+                <h2 class="text-lg font-semibold mb-3 text-gray-300">Add Food</h2>
+                <input type="file" id="file-input" accept="image/*" class="mb-3 text-gray-400">
+                <input type="text" id="label-input" placeholder="What food is this? (optional)"
+                    class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
+                <button id="upload-btn" onclick="uploadFood()"
                     class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                Upload Food
-            </button>
-        </div>
+                    Upload Food
+                </button>
+            </div>
 
-        <div id="food-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-        
-        <div class="mt-8 flex justify-center">
-            <button id="load-more" onclick="loadMore()" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition hidden">
-                Load More
-            </button>
+            <div id="food-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+
+            <div class="mt-8 flex justify-center">
+                <button id="load-more" onclick="loadMore()"
+                    class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition hidden">
+                    Load More
+                </button>
+            </div>
         </div>
-    </div>
+    </div> <!-- end main-app -->
+
     <script src="script.js"></script>
-</body>
-
 </body>
 
 </html>

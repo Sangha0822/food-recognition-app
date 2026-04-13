@@ -1,5 +1,44 @@
 let currentOffset = 0
 
+function checkAuth() {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        document.getElementById("auth-section").classList.add("hidden");
+        document.getElementById("main-app").classList.remove("hidden");
+        document.getElementById("logout-btn").classList.remove("hidden");
+        testFetch();
+    } else {
+        document.getElementById("auth-section").classList.remove("hidden");
+        document.getElementById("main-app").classList.add("hidden");
+        document.getElementById("logout-btn").classList.add("hidden");
+    }
+}
+
+function logout() {
+    localStorage.removeItem("access_token");
+    checkAuth();
+}
+
+let authMode = "login"
+
+function showLogin() {
+    authMode = "login"
+    document.getElementById("login-tab").classList.add("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("login-tab").classList.remove("text-gray-400")
+    document.getElementById("register-tab").classList.remove("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("register-tab").classList.add("text-gray-400")
+    document.getElementById("auth-btn").textContent = "Login"
+}
+
+function showRegister() {
+    authMode = "register"
+    document.getElementById("register-tab").classList.add("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("register-tab").classList.remove("text-gray-400")
+    document.getElementById("login-tab").classList.remove("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("login-tab").classList.add("text-gray-400")
+    document.getElementById("auth-btn").textContent = "Register"
+}
+
 async function testFetch(append = false) {
     try {
         const searchTerm = document.getElementById("search-input").value;
@@ -42,7 +81,7 @@ async function testFetch(append = false) {
         console.error("Fetch failed:", error);
     }
 }
-testFetch();
+checkAuth()
 
 async function uploadFood() {
     const button = document.getElementById("upload-btn");
@@ -79,3 +118,4 @@ function loadMore() {
     currentOffset += 10;
     testFetch(append = true);
 }
+
