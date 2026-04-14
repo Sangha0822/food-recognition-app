@@ -1,4 +1,3 @@
-let currentOffset = 0
 
 function checkAuth() {
     const token = localStorage.getItem("access_token");
@@ -39,6 +38,45 @@ function showRegister() {
     document.getElementById("auth-btn").textContent = "Register"
 }
 
+async function submitAuth() {
+    const email = document.getElementById("auth-email").value;
+    const password = document.getElementById("auth-password").value;
+    const errorEl = document.getElementById("auth-error");
+    errorEl.classList.add("hidden");
+
+    if (authMode === "login") {
+        const response = await fetch("http://127.0.0.1:8000/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ username: email, password: password })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("access_token", data.access_token);
+            checkAuth();
+        } else {
+            errorEl.textContent = "Invalid email or password.";
+            errorEl.classList.remove("hidden");
+        }
+    } else {
+        const response = await fetch("http://127.0.0.1:8000/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: password })
+        });
+        if (response.ok) {
+            authMode = "login";
+            await submitAuth();
+        } else {
+            errorEl.textContent = "Registration failed. Email may already exist.";
+            errorEl.classList.remove("hidden");
+        }
+    }
+}
+
+
+let currentOffset = 0
+
 async function testFetch(append = false) {
     try {
         const searchTerm = document.getElementById("search-input").value;
@@ -62,8 +100,13 @@ async function testFetch(append = false) {
             <img src="${food.image_url}" class="w-full h-48 object-cover rounded-md mb-4">
             <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
             <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleString()}</p>
-        </div>
-        `;
+            <button onclick="deleteFood(${food.id})"
+                class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
+                Delete
+            </button>
+            </div>
+            `;
+            
             gridContainer.innerHTML += cardHTML;
         });
 
@@ -82,6 +125,15 @@ async function testFetch(append = false) {
     }
 }
 checkAuth()
+
+
+async function deleteFood(id){
+    const response = await fetch(`http://127.0.0.1:8000/entries/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") }
+    });
+    testFetch();
+}
 
 async function uploadFood() {
     const button = document.getElementById("upload-btn");
@@ -103,6 +155,7 @@ async function uploadFood() {
 
     const response = await fetch("http://127.0.0.1:8000/uploads", {
         method: "POST",
+        headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") },
         body: formData
     });
 
