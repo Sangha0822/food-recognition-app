@@ -55,13 +55,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
 def health_check():
     return {"ok": True}
 
-@app.post("/entries") # Adds JSON format into the DB
-def create_food_entry(entry: FoodEntryCreate, session: Session =Depends(get_session)):
-    food = FoodEntry(final_label = entry.final_label)
-    session.add(food)
-    session.commit()
-    session.refresh(food)
-    return food
 
 @app.get("/entries") # Gets the DB entries
 def read_food_entries(label: Optional[str] = None, offset: int = 0, limit: int = 10, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
