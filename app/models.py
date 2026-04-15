@@ -9,6 +9,7 @@ class FoodEntry(SQLModel, table=True): # Database table class
     image_path: Optional[str] = None
     final_label: Optional[str] = None
     logged_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     
     @computed_field
     @property

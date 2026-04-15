@@ -64,12 +64,13 @@ def create_food_entry(entry: FoodEntryCreate, session: Session =Depends(get_sess
     return food
 
 @app.get("/entries") # Gets the DB entries
-def read_food_entries(label: Optional[str] = None, offset: int = 0, limit: int = 10, session: Session = Depends(get_session)):
+def read_food_entries(label: Optional[str] = None, offset: int = 0, limit: int = 10, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     dicFoodEntries = {}
 
     statement = select(FoodEntry)
     if label:
-        statement = statement.where(FoodEntry.final_label.ilike(f"%{label}%"))
+        statement = statement.where(FoodEntry.final_label.ilike(f"%{label}%")) 
+    statement = statement.where(FoodEntry.user_id == current_user.id) # SQLModel chains them together so it does not replace the previous statement.
     count_statement = select(func.count()).select_from(statement.subquery())
     result_statement = statement.order_by(desc(FoodEntry.id)).offset(offset).limit(limit)
     results = session.exec(result_statement).all()
@@ -87,6 +88,8 @@ def delete_entry(entry_id: int, current_user: User = Depends(get_current_user), 
     entry = session.get(FoodEntry, entry_id)
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
+    if entry.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this entry")
     else:
         if entry.image_path is not None:
             Path(entry.image_path).unlink(missing_ok=True)
@@ -105,7 +108,7 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
         buffer.write(content)
     if not final_label:
         final_label = identify_food(str(file_path))
-    food = FoodEntry(image_path = str(file_path), final_label = final_label)
+    food = FoodEntry(image_path = str(file_path), final_label = final_label, user_id = current_user.id)
     session.add(food)
     session.commit()
     session.refresh(food)

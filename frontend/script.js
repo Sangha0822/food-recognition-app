@@ -80,7 +80,10 @@ let currentOffset = 0
 async function testFetch(append = false) {
     try {
         const searchTerm = document.getElementById("search-input").value;
-        const response = await fetch(`http://127.0.0.1:8000/entries?label=${searchTerm}&offset=${currentOffset}&limit=10`);
+        const response = await fetch(`http://127.0.0.1:8000/entries?label=${searchTerm}&offset=${currentOffset}&limit=10`, {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") },
+        });
         if (!response.ok) {
             throw new Error("Could not fetch resource");
         }
@@ -93,6 +96,8 @@ async function testFetch(append = false) {
             gridContainer.innerHTML = "";
         }
 
+
+        
         const entries = data.entries;
         entries.forEach(food => {
             const cardHTML = `
@@ -163,6 +168,7 @@ async function uploadFood() {
     console.log("Uploaded!", data);
     button.textContent = "Upload Food";
     button.disabled = false;
+    fileInput.value = "";
     currentOffset = 0;
     testFetch();
 }
