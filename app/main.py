@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
 from sqlmodel import Session, select, desc
 from app.database import create_db_and_tables
-from app.models import FoodEntry, FoodEntryCreate, UserCreate
+from app.models import FoodEntry, UserCreate
 from app.database import get_session
 from pathlib import Path
 import uuid

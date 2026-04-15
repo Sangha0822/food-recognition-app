@@ -18,8 +18,6 @@ class FoodEntry(SQLModel, table=True): # Database table class
             return None
         filename = Path(self.image_path).name
         return f"http://127.0.0.1:8000/static/{filename}"
-    
-    
 
 class User(SQLModel, table=True): # What goes INSIDE DB
     id: Optional[int] = Field(default=None, primary_key=True)
