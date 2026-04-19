@@ -45,7 +45,7 @@ async function submitAuth() {
     errorEl.classList.add("hidden");
 
     if (authMode === "login") {
-        const response = await fetch("http://127.0.0.1:8000/login", {
+        const response = await fetch("/login", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({ username: email, password: password })
@@ -59,7 +59,7 @@ async function submitAuth() {
             errorEl.classList.remove("hidden");
         }
     } else {
-        const response = await fetch("http://127.0.0.1:8000/register", {
+        const response = await fetch("/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: email, password: password })
@@ -80,7 +80,7 @@ let currentOffset = 0
 async function testFetch(append = false) {
     try {
         const searchTerm = document.getElementById("search-input").value;
-        const response = await fetch(`http://127.0.0.1:8000/entries?label=${searchTerm}&offset=${currentOffset}&limit=10`, {
+        const response = await fetch(`/entries?label=${searchTerm}&offset=${currentOffset}&limit=10`, {
             method: "GET",
             headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") },
         });
@@ -133,7 +133,7 @@ checkAuth()
 
 
 async function deleteFood(id){
-    const response = await fetch(`http://127.0.0.1:8000/entries/${id}`, {
+    const response = await fetch(`/entries/${id}`, {
         method: "DELETE",
         headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") }
     });
@@ -159,7 +159,7 @@ async function uploadFood() {
     formData.append("final_label", labelInput.value);
 
     const errorEl = document.getElementById("upload-error");
-    const response = await fetch("http://127.0.0.1:8000/uploads", {
+    const response = await fetch("/uploads", {
         method: "POST",
         headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") },
         body: formData
