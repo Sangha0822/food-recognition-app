@@ -158,16 +158,24 @@ async function uploadFood() {
     formData.append("file", file);
     formData.append("final_label", labelInput.value);
 
+    const errorEl = document.getElementById("upload-error");
     const response = await fetch("http://127.0.0.1:8000/uploads", {
         method: "POST",
         headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") },
         body: formData
     });
 
-    const data = await response.json();
-    console.log("Uploaded!", data);
     button.textContent = "Upload Food";
     button.disabled = false;
+
+    if (!response.ok) {
+        const data = await response.json();
+        errorEl.textContent = data.detail || "Upload failed.";
+        errorEl.classList.remove("hidden");
+        return;
+    }
+
+    errorEl.classList.add("hidden");
     fileInput.value = "";
     currentOffset = 0;
     testFetch();
