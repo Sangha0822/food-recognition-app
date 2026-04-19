@@ -1,38 +1,67 @@
-# Food Recognition and Tracking App
+# My Food Journal
 
-A full-stack AI-powered food journal that automatically identifies food from photos 
-and logs them to a personal database.
+A full-stack AI-powered food journal that automatically identifies food from photos using Google Gemini Vision API.
 
-## The Story
-Built during military service to maintain engineering discipline and prepare for a 
-career in ML and SWE. Started with zero API or database experience — learned by 
-building, debugging, and iterating on a real working product.
+**Live Demo:** https://food-recognition-app-7rtx.onrender.com
+![Login screen](screenshots/login.png)
+![Main app](screenshots/mainPage.png)
+---
 
-## Live Features
-- 📸 Upload a food photo → AI automatically identifies it using Gemini Vision API
-- 🔍 Search your food journal in real time
-- 🗂️ Paginated food entries with image display
-- 🕐 Automatic timestamp logging for every entry
-- 🗑️ Delete entries with automatic image cleanup
+## Features
+
+- Upload a food photo — Gemini Vision AI identifies it automatically
+- JWT authentication — register, login, private entries per user
+- Search your food journal in real time
+- Paginated food entries with timestamps
+- Delete entries with ownership enforcement (can't delete other users' entries)
+- File type validation on uploads
 
 ## Tech Stack
-- **Backend:** Python, FastAPI, SQLModel (SQLite)
-- **Frontend:** JavaScript (Vanilla), Tailwind CSS
-- **AI:** Google Gemini Vision API for food recognition
-- **Infrastructure:** REST API, CORS, UUID file management, multipart form handling
 
-## What I Learned
-- Designing and consuming REST APIs from scratch
-- Database modeling with SQLModel and SQLite
-- Connecting a decoupled frontend to a backend via fetch()
-- Integrating third-party AI vision APIs
-- Environment variable management and API key security
-- Git workflow with issues, commit history, and proper .gitignore
+| Layer | Technology |
+|---|---|
+| Backend | Python, FastAPI, SQLModel, SQLite |
+| Auth | JWT (python-jose), bcrypt password hashing |
+| Frontend | Vanilla JavaScript, Tailwind CSS |
+| AI | Google Gemini Vision API |
+| Deployment | Render |
+
+## Running Locally
+
+```bash
+git clone https://github.com/Sangha0822/food-recognition-app
+cd food-recognition-app
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Create a `.env` file:
+```
+SECRET_KEY=your-secret-key
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Open `http://127.0.0.1:8000`
+
+## Running Tests
+
+```bash
+pytest tests/test_main.py -v
+```
+
+## Known Limitations
+
+- Uploaded images are not persistent on Render's free tier (wiped on redeploy) — AWS S3 integration planned
+- SQLite database is ephemeral on free hosting — PostgreSQL migration planned
 
 ## Roadmap
-- [ ] JWT User Authentication (login/signup)
-- [ ] AWS S3 for cloud image storage
-- [ ] Load More pagination on frontend
-- [ ] Train custom food recognition model on MIT Food-101 dataset (PyTorch)
-- [ ] Calorie estimation per food entry
-- [ ] Loading spinner for upload UX
+
+- [ ] AWS S3 for persistent image storage
+- [ ] PostgreSQL for persistent database
+- [ ] Daily calendar view for food log
+- [ ] Custom food recognition model (PyTorch, MIT Food-101 dataset)
+- [ ] Calorie estimation per entry
