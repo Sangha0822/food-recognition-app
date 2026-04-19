@@ -177,6 +177,7 @@ async function uploadFood() {
 
     errorEl.classList.add("hidden");
     fileInput.value = "";
+    labelInput.value = "";
     currentOffset = 0;
     testFetch();
 }
