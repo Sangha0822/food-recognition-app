@@ -92,7 +92,10 @@ def delete_entry(entry_id: int, current_user: User = Depends(get_current_user), 
     
 @app.post("/uploads")# Uploads the image to DB (adds Multipart Form data so it should not be merged with entries saving function)
 def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form(None), current_user: User = Depends(get_current_user), session: Session =Depends(get_session)):
-    extension = Path(file.filename).suffix
+    extension = Path(file.filename).suffix.lower()
+    acceptableFormat = set([".jpg", ".jpeg", ".png", ".webp", ".heic"])
+    if extension not in acceptableFormat:
+        raise HTTPException(status_code=400, detail = "Not acceptable image format.")
     uuidName = str(uuid.uuid4())
     newFileName = uuidName + extension
     file_path = UPLOAD_DIR / newFileName
