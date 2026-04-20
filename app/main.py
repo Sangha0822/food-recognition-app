@@ -17,6 +17,7 @@ import app.auth as auth
 from app.models import User
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError
+import boto3
 
 @asynccontextmanager # Creates the DB when it starts
 async def lifespan(app: FastAPI):
@@ -36,8 +37,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(parents = True, exist_ok = True)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
@@ -84,8 +83,6 @@ def delete_entry(entry_id: int, current_user: User = Depends(get_current_user), 
     if entry.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this entry")
     else:
-        if entry.image_path is not None:
-            Path(entry.image_path).unlink(missing_ok=True)
         session.delete(entry)
         session.commit()
 
@@ -98,13 +95,26 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
         raise HTTPException(status_code=400, detail = "Not acceptable image format.")
     uuidName = str(uuid.uuid4())
     newFileName = uuidName + extension
-    file_path = UPLOAD_DIR / newFileName
-    with open(file_path, "wb") as buffer:
-        content = file.file.read()
-        buffer.write(content)
+    
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.getenv("AWS_REGION")
+    )
+    content = file.file.read()
+    s3_client.put_object(
+        Bucket=os.getenv("AWS_BUCKET_NAME"),
+        Key=newFileName,
+        Body=content,
+        ContentType=file.content_type
+    )
+    bucket = os.getenv("AWS_BUCKET_NAME")
+    url_path = f"https://{bucket}.s3.amazonaws.com/{newFileName}"
+
     if not final_label:
-        final_label = identify_food(str(file_path))
-    food = FoodEntry(image_path = str(file_path), final_label = final_label, user_id = current_user.id)
+        final_label = identify_food(content, file.content_type)
+    food = FoodEntry(image_path = str(url_path), final_label = final_label, user_id = current_user.id)
     session.add(food)
     session.commit()
     session.refresh(food)
@@ -135,12 +145,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
-def identify_food(image_path: str) -> str:
-    image_bytes = Path(image_path).read_bytes()
+def identify_food(image_bytes: bytes, content_type: str) -> str:
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=[
-            genai.types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+            genai.types.Part.from_bytes(data=image_bytes, mime_type=content_type),
             "What food is this? Reply with just the food name, nothing else."
         ]
     )

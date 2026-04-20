@@ -102,7 +102,7 @@ async function testFetch(append = false) {
         entries.forEach(food => {
             const cardHTML = `
         <div class="bg-gray-800 rounded-lg shadow-md p-4">
-            <img src="${food.image_url}" class="w-full h-48 object-cover rounded-md mb-4">
+            <img src="${food.image_path}" class="w-full h-48 object-cover rounded-md mb-4">
             <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
             <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleString()}</p>
             <button onclick="deleteFood(${food.id})"

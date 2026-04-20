@@ -6,3 +6,6 @@ https://www.youtube.com/watch?v=rvFsGRvj9jo&t=1034s
 # JWT:
 https://passlib.readthedocs.io/en/stable/lib/passlib.context.html
 https://recording-it.tistory.com/84
+
+# AWS S3:
+https://www.youtube.com/watch?v=mDRoyPFJvlU
