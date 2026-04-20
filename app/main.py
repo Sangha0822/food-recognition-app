@@ -146,12 +146,16 @@ app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 def identify_food(image_bytes: bytes, content_type: str) -> str:
-    response = client.models.generate_content(
+    try:
+        response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=[
             genai.types.Part.from_bytes(data=image_bytes, mime_type=content_type),
             "What food is this? Reply with just the food name, nothing else."
         ]
-    )
+        )
+    except Exception:
+        raise HTTPException(status_code=503, detail = "AI is busy, please add a label manually.")
+
     return response.text.strip()
 
