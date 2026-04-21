@@ -9,3 +9,6 @@ https://recording-it.tistory.com/84
 
 # AWS S3:
 https://www.youtube.com/watch?v=mDRoyPFJvlU
+
+# Supabase:
+Chose Supabase over Rendar's PostgreSQL for User database. Supabase does not expire, but Rendar expires after 90 days. That is hte huge deal breaker and the reason I chose supabase instead.
