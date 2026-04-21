@@ -18,7 +18,7 @@ from app.models import User
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError
 import boto3
-
+from email_validator import validate_email, EmailNotValidError
 @asynccontextmanager # Creates the DB when it starts
 async def lifespan(app: FastAPI):
     create_db_and_tables()
@@ -122,11 +122,16 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
 
 @app.post("/register")
 def register(user_data: UserCreate, session: Session = Depends(get_session)):
-    emailExist = session.exec(select(User).where(User.email == user_data.email)).first()
-    if emailExist:    
+    try:
+        emailinfo = validate_email(user_data.email, check_deliverability=False)
+    except EmailNotValidError:
+        raise HTTPException(status_code=400, detail="Please write valid email.")
+
+    emailExist = session.exec(select(User).where(User.email == emailinfo.normalized)).first()
+    if emailExist:
         raise HTTPException(status_code=400, detail="Email is already registered")
     hashPWD = auth.hash_password(user_data.password)
-    user = User(email = user_data.email, hashed_password = hashPWD)
+    user = User(email = emailinfo.normalized, hashed_password = hashPWD)
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -135,10 +140,14 @@ def register(user_data: UserCreate, session: Session = Depends(get_session)):
 
 @app.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
-    emailExist = session.exec(select(User).where(User.email == form_data.username)).first()
+    try:
+        normalized_email = validate_email(form_data.username, check_deliverability=False).normalized
+    except EmailNotValidError:
+        raise HTTPException(status_code=401, detail="Email or the password is wrong. Please check again.")
+    emailExist = session.exec(select(User).where(User.email == normalized_email)).first()
     if not emailExist or not auth.verify_password(form_data.password, emailExist.hashed_password):
         raise HTTPException(status_code=401, detail="Email or the password is wrong. Please check again.")
-    encodedJWT = auth.create_access_token({"sub": form_data.username})
+    encodedJWT = auth.create_access_token({"sub": normalized_email})
     return {"access_token": encodedJWT, "token_type": "bearer"}
 
 

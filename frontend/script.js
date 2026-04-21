@@ -69,7 +69,8 @@ async function submitAuth() {
             authMode = "login";
             await submitAuth();
         } else {
-            errorEl.textContent = "Registration failed. Email may already exist.";
+            const data = await response.json();
+            errorEl.textContent = data.detail || "Registration failed.";
             errorEl.classList.remove("hidden");
         }
     }
