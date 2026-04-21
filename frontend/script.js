@@ -15,6 +15,7 @@ function checkAuth() {
 
 function logout() {
     localStorage.removeItem("access_token");
+    document.getElementById("food-grid").innerHTML = "";
     checkAuth();
 }
 
