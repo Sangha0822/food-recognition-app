@@ -101,20 +101,27 @@ async function testFetch(append = false) {
 
         
         const entries = data.entries;
+        const groups = {};
         entries.forEach(food => {
-            const cardHTML = `
-        <div class="bg-gray-800 rounded-lg shadow-md p-4">
-            <img src="${food.image_path}" class="w-full h-48 object-cover rounded-md mb-4">
-            <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
-            <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleString()}</p>
-            <button onclick="deleteFood(${food.id})"
-                class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
-                Delete
-            </button>
-            </div>
-            `;
-            
-            gridContainer.innerHTML += cardHTML;
+            const date = new Date(food.logged_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(food);
+        });
+
+        Object.keys(groups).forEach(date => {
+            gridContainer.innerHTML += `<h2 class="col-span-full text-green-400 font-semibold text-lg border-b border-gray-700 pb-1 mt-4">${date}</h2>`;
+            groups[date].forEach(food => {
+                gridContainer.innerHTML += `
+                <div class="bg-gray-800 rounded-lg shadow-md p-4">
+                    <img src="${food.image_path}" class="w-full h-48 object-cover rounded-md mb-4">
+                    <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
+                    <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleTimeString()}</p>
+                    <button onclick="deleteFood(${food.id})"
+                        class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
+                        Delete
+                    </button>
+                </div>`;
+            });
         });
 
         const searchBox = document.getElementById("search-input");
