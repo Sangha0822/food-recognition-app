@@ -9,77 +9,106 @@
 </head>
 
 <body class="bg-gray-900 min-h-screen">
-    <div class="max-w-4xl mx-auto p-6">
 
-        <header class="mb-8">
-            <div class="bg-gray-800 rounded-2xl shadow-sm p-6 flex items-center gap-4">
-                <div class="bg-gray-700 rounded-xl p-3 flex items-center justify-center"
-                    style="width:56px; height:56px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" width="32"
-                        height="32">
+    <!-- Auth Page -->
+    <div id="auth-section" class="hidden min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-2xl mb-4 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" width="32" height="32">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white">My Food Journal</h1>
+                <p class="text-gray-400 mt-1 text-sm">Powered by Gemini Vision AI</p>
+            </div>
+
+            <div class="bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-700">
+                <div class="flex gap-1 mb-6 bg-gray-700 rounded-lg p-1">
+                    <button onclick="showLogin()" id="login-tab"
+                        class="flex-1 py-2 rounded-md text-sm font-medium transition bg-gray-600 text-white">Login</button>
+                    <button onclick="showRegister()" id="register-tab"
+                        class="flex-1 py-2 rounded-md text-sm font-medium transition text-gray-400 hover:text-white">Register</button>
+                </div>
+                <input type="email" id="auth-email" placeholder="Email"
+                    class="w-full p-3 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <input type="password" id="auth-password" placeholder="Password"
+                    class="w-full p-3 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button id="auth-btn" onclick="submitAuth()"
+                    class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold">Login</button>
+                <p id="auth-error" class="text-red-400 text-sm mt-3 hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="hidden flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside class="w-72 bg-gray-800 border-r border-gray-700 flex flex-col p-6 fixed h-full overflow-y-auto">
+
+            <div class="flex items-center gap-3 mb-8">
+                <div class="bg-green-600 rounded-xl p-2 shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" width="22" height="22">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-white">My Food Journal</h1>
-                    <p class="text-gray-400 text-sm">Powered by Gemini Vision AI</p>
+                    <h1 class="text-white font-bold text-base leading-tight">My Food Journal</h1>
+                    <p class="text-gray-500 text-xs">Gemini Vision AI</p>
                 </div>
+            </div>
+
+            <input type="text" id="search-input" placeholder="Search food..." onkeyup="testFetch()"
+                class="w-full p-2.5 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 mb-6">
+
+            <p class="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Add Food</p>
+
+            <label for="file-input"
+                class="block border-2 border-dashed border-gray-600 rounded-xl p-5 text-center cursor-pointer hover:border-green-500 hover:bg-gray-750 transition mb-3 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 text-gray-500 group-hover:text-green-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="28" height="28">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <p class="text-gray-400 text-sm font-medium">Click to upload image</p>
+                <p class="text-gray-600 text-xs mt-1">JPG, PNG, WEBP, HEIC</p>
+            </label>
+            <input type="file" id="file-input" accept="image/*" class="hidden">
+
+            <input type="text" id="label-input" placeholder="Label (optional — AI will guess)"
+                class="w-full p-2.5 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+
+            <button id="upload-btn" onclick="uploadFood()"
+                class="w-full bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 transition font-semibold text-sm">
+                Upload Food
+            </button>
+            <p id="upload-error" class="text-red-400 text-xs mt-2 hidden"></p>
+
+            <div class="mt-auto pt-6 border-t border-gray-700">
                 <button onclick="logout()" id="logout-btn"
-                    class="ml-auto bg-gray-700 text-gray-300 px-3 py-1 rounded-lg hover:bg-gray-600 text-sm hidden">
+                    class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
                     Logout
                 </button>
             </div>
-        </header>
+        </aside>
 
-        <!-- Auth Section (shown when logged out) -->
-        <div id="auth-section" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-md hidden">
-            <div class="flex gap-4 mb-4">
-                <button onclick="showLogin()" id="login-tab"
-                    class="text-green-400 font-semibold border-b-2 border-green-400 pb-1">Login</button>
-                <button onclick="showRegister()" id="register-tab" class="text-gray-400 pb-1">Register</button>
-            </div>
-            <input type="email" id="auth-email" placeholder="Email"
-                class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
-            <input type="password" id="auth-password" placeholder="Password"
-                class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
-            <button id="auth-btn" onclick="submitAuth()"
-                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Login</button>
-            <p id="auth-error" class="text-red-400 text-sm mt-2 hidden"></p>
-        </div>
-
-        <!-- Main App (shown when logged in) -->
-        <div id="main-app" class="hidden">
-
-            <div class="mb-6">
-                <input type="text" id="search-input" placeholder="Search for food (e.g. Pizza)" onkeyup="testFetch()"
-                    class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500">
-            </div>
-
-            <div class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
-                <h2 class="text-lg font-semibold mb-3 text-gray-300">Add Food</h2>
-                <input type="file" id="file-input" accept="image/*" class="mb-3 text-gray-400">
-                <input type="text" id="label-input" placeholder="What food is this? (optional)"
-                    class="w-full p-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg mb-3">
-                <button id="upload-btn" onclick="uploadFood()"
-                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                    Upload Food
-                </button>
-                <p id="upload-error" class="text-red-400 text-sm mt-2 hidden"></p>
-            </div>
-
-            <div id="food-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-
+        <!-- Main Content -->
+        <main class="ml-72 flex-1 p-8 min-h-screen">
+            <div id="food-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             <div class="mt-8 flex justify-center">
                 <button id="load-more" onclick="loadMore()"
-                    class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition hidden">
+                    class="bg-green-600 text-white px-8 py-2.5 rounded-full hover:bg-green-700 transition font-semibold text-sm hidden">
                     Load More
                 </button>
             </div>
-        </div>
-    </div> <!-- end main-app -->
+        </main>
+    </div>
 
     <script src="script.js"></script>
 </body>

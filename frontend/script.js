@@ -23,18 +23,18 @@ let authMode = "login"
 
 function showLogin() {
     authMode = "login"
-    document.getElementById("login-tab").classList.add("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("login-tab").classList.add("bg-gray-600", "text-white")
     document.getElementById("login-tab").classList.remove("text-gray-400")
-    document.getElementById("register-tab").classList.remove("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("register-tab").classList.remove("bg-gray-600", "text-white")
     document.getElementById("register-tab").classList.add("text-gray-400")
     document.getElementById("auth-btn").textContent = "Login"
 }
 
 function showRegister() {
     authMode = "register"
-    document.getElementById("register-tab").classList.add("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("register-tab").classList.add("bg-gray-600", "text-white")
     document.getElementById("register-tab").classList.remove("text-gray-400")
-    document.getElementById("login-tab").classList.remove("text-green-400", "font-semibold", "border-b-2", "border-green-400")
+    document.getElementById("login-tab").classList.remove("bg-gray-600", "text-white")
     document.getElementById("login-tab").classList.add("text-gray-400")
     document.getElementById("auth-btn").textContent = "Register"
 }
