@@ -61,6 +61,18 @@ def test_get_entries_requires_auth():
     response = client.get("/entries")
     assert response.status_code == 401
 
+def test_invalid_file_type():
+    client.post("/register", json={"email": "test@test.com", "password": "password"})
+    login = client.post("/login", data={"username": "test@test.com", "password": "password"})
+    token = login.json()["access_token"]
+
+    response = client.post(
+        "/uploads",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("test.txt", b"hello", "text/plain")}
+    )
+    assert response.status_code == 400
+
 def test_delete_other_users_entry_forbidden():
     client.post("/register", json={"email": "user1@test.com", "password": "abc123"})
     client.post("/register", json={"email": "user2@test.com", "password": "abc123"})
