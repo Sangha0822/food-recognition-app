@@ -87,6 +87,8 @@
             </button>
             <p id="upload-error" class="text-red-400 text-xs mt-2 hidden"></p>
 
+            <p class="text-gray-600 text-xs mt-4">* Calorie estimates are approximate</p>
+
             <div class="mt-auto pt-6 border-t border-gray-700">
                 <button onclick="logout()" id="logout-btn"
                     class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm hidden">
@@ -100,7 +102,7 @@
 
         <!-- Main Content -->
         <main class="ml-72 flex-1 p-8 min-h-screen">
-            <div id="food-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="food-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
             <div class="mt-8 flex justify-center">
                 <button id="load-more" onclick="loadMore()"
                     class="bg-green-600 text-white px-8 py-2.5 rounded-full hover:bg-green-700 transition font-semibold text-sm hidden">

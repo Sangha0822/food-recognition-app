@@ -109,18 +109,22 @@ async function testFetch(append = false) {
         });
 
         Object.keys(groups).forEach(date => {
-            gridContainer.innerHTML += `<h2 class="col-span-full text-green-400 font-semibold text-lg border-b border-gray-700 pb-1 mt-4">${date}</h2>`;
+            const dailyTotal = groups[date].reduce((sum, f) => sum + (f.calories || 0), 0);
+            const totalText = dailyTotal > 0 ? `<span class="text-gray-400 text-sm font-normal ml-3">${dailyTotal} kcal total</span>` : '';
+            gridContainer.innerHTML += `<h2 class="col-span-full text-green-400 font-semibold text-lg border-b border-gray-700 pb-1 mt-4">${date}${totalText}</h2>`;
             groups[date].forEach(food => {
                 gridContainer.innerHTML += `
-                <div class="bg-gray-800 rounded-lg shadow-md p-4">
-                    <img src="${food.image_path}" class="w-full h-48 object-cover rounded-md mb-4">
-                    <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
-                    <p class="text-green-400 text-xs text-center">${food.calories ? food.calories + ' kcal' : ''}</p>
-                    <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleTimeString()}</p>
-                    <button onclick="deleteFood(${food.id})"
-                        class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
-                        Delete
-                    </button>
+                <div class="bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                    <img src="${food.image_path}" class="w-full h-40 object-cover">
+                    <div class="p-3">
+                        <h2 class="text-sm font-semibold text-white text-center">${food.final_label}</h2>
+                        <p class="text-green-400 text-xs text-center">${food.calories ? food.calories + ' kcal' : ''}</p>
+                        <p class="text-gray-500 text-xs text-center mt-0.5">${new Date(food.logged_at).toLocaleTimeString()}</p>
+                        <button onclick="deleteFood(${food.id})"
+                            class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
+                            Delete
+                        </button>
+                    </div>
                 </div>`;
             });
         });
