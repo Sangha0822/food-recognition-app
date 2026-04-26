@@ -8,7 +8,7 @@ class FoodEntry(SQLModel, table=True): # Database table class
     final_label: Optional[str] = None
     logged_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-
+    calories: Optional[int] = None
 
 class User(SQLModel, table=True): # What goes INSIDE DB
     id: Optional[int] = Field(default=None, primary_key=True)

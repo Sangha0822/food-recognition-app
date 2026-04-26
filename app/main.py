@@ -19,6 +19,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError
 import boto3
 from email_validator import validate_email, EmailNotValidError
+import json
+
 @asynccontextmanager # Creates the DB when it starts
 async def lifespan(app: FastAPI):
     create_db_and_tables()
@@ -111,10 +113,12 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
     )
     bucket = os.getenv("AWS_BUCKET_NAME")
     url_path = f"https://{bucket}.s3.amazonaws.com/{newFileName}"
-
+    calories = None
     if not final_label:
-        final_label = identify_food(content, file.content_type)
-    food = FoodEntry(image_path = str(url_path), final_label = final_label, user_id = current_user.id)
+        result = identify_food(content, file.content_type)
+        final_label = result["food"]
+        calories = result["calories"]
+    food = FoodEntry(image_path = str(url_path), final_label = final_label, user_id = current_user.id, calories=calories)
     session.add(food)
     session.commit()
     session.refresh(food)
@@ -154,17 +158,17 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
-def identify_food(image_bytes: bytes, content_type: str) -> str:
+def identify_food(image_bytes: bytes, content_type: str) -> dict:
     try:
         response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=[
             genai.types.Part.from_bytes(data=image_bytes, mime_type=content_type),
-            "What food is this? Reply with just the food name, nothing else."
+            'What food is this? Reply in JSON format only, no extra text: {"food": "food name", "calories": estimated_number}'
         ]
         )
+        cleaned = response.text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        return json.loads(cleaned)
     except Exception:
         raise HTTPException(status_code=503, detail = "AI is busy, please add a label manually.")
-
-    return response.text.strip()
 

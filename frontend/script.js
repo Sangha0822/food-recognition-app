@@ -115,6 +115,7 @@ async function testFetch(append = false) {
                 <div class="bg-gray-800 rounded-lg shadow-md p-4">
                     <img src="${food.image_path}" class="w-full h-48 object-cover rounded-md mb-4">
                     <h2 class="text-lg font-semibold text-white text-center">${food.final_label}</h2>
+                    <p class="text-green-400 text-xs text-center">${food.calories ? food.calories + ' kcal' : ''}</p>
                     <p class="text-gray-500 text-xs text-center mt-1">${new Date(food.logged_at).toLocaleTimeString()}</p>
                     <button onclick="deleteFood(${food.id})"
                         class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
@@ -140,6 +141,12 @@ async function testFetch(append = false) {
 }
 checkAuth()
 
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("file-input").addEventListener("change", function() {
+        const label = document.querySelector("label[for='file-input'] p");
+        label.textContent = this.files[0] ? this.files[0].name : "Click to upload image";
+    });
+});
 
 async function deleteFood(id){
     const response = await fetch(`/entries/${id}`, {
