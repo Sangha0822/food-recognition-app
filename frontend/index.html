@@ -24,7 +24,6 @@
                 <h1 class="text-3xl font-bold text-white">My Food Journal</h1>
                 <p class="text-gray-400 mt-1 text-sm">Powered by Gemini Vision AI</p>
             </div>
-
             <div class="bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-700">
                 <div class="flex gap-1 mb-6 bg-gray-700 rounded-lg p-1">
                     <button onclick="showLogin()" id="login-tab"
@@ -46,8 +45,13 @@
     <!-- Main App -->
     <div id="main-app" class="hidden flex min-h-screen">
 
+        <!-- Mobile overlay -->
+        <div id="sidebar-overlay" onclick="closeSidebar()"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"></div>
+
         <!-- Sidebar -->
-        <aside class="w-72 bg-gray-800 border-r border-gray-700 flex flex-col p-6 fixed h-full overflow-y-auto">
+        <aside id="sidebar"
+            class="w-72 bg-gray-800 border-r border-gray-700 flex flex-col p-6 fixed h-full overflow-y-auto z-30 -translate-x-full md:translate-x-0 transition-transform duration-300">
 
             <div class="flex items-center gap-3 mb-8">
                 <div class="bg-green-600 rounded-xl p-2 shadow-md">
@@ -61,6 +65,12 @@
                     <h1 class="text-white font-bold text-base leading-tight">My Food Journal</h1>
                     <p class="text-gray-500 text-xs">Gemini Vision AI</p>
                 </div>
+                <!-- Close button (mobile only) -->
+                <button onclick="closeSidebar()" class="ml-auto md:hidden text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <input type="text" id="search-input" placeholder="Search food..." onkeyup="testFetch()"
@@ -69,7 +79,7 @@
             <p class="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Add Food</p>
 
             <label for="file-input"
-                class="block border-2 border-dashed border-gray-600 rounded-xl p-5 text-center cursor-pointer hover:border-green-500 hover:bg-gray-750 transition mb-3 group">
+                class="block border-2 border-dashed border-gray-600 rounded-xl p-5 text-center cursor-pointer hover:border-green-500 transition mb-3 group">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 text-gray-500 group-hover:text-green-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="28" height="28">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
@@ -79,6 +89,7 @@
             <input type="file" id="file-input" accept="image/*" class="hidden">
 
             <input type="text" id="label-input" placeholder="Label (optional — AI will guess)"
+                onkeydown="if(event.key==='Enter') uploadFood()"
                 class="w-full p-2.5 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-green-500">
 
             <button id="upload-btn" onclick="uploadFood()"
@@ -101,13 +112,35 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="ml-72 flex-1 p-8 min-h-screen">
-            <div id="food-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-            <div class="mt-8 flex justify-center">
-                <button id="load-more" onclick="loadMore()"
-                    class="bg-green-600 text-white px-8 py-2.5 rounded-full hover:bg-green-700 transition font-semibold text-sm hidden">
-                    Load More
+        <main class="flex-1 md:ml-72 min-h-screen flex flex-col">
+
+            <!-- Mobile top bar -->
+            <div class="md:hidden flex items-center gap-3 bg-gray-800 border-b border-gray-700 px-4 py-3">
+                <button onclick="openSidebar()" class="text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
+                <div class="flex items-center gap-2">
+                    <div class="bg-green-600 rounded-lg p-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" width="16" height="16">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-white font-semibold text-sm">My Food Journal</span>
+                </div>
+            </div>
+
+            <div class="p-4 md:p-8 flex-1">
+                <div id="food-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"></div>
+                <div class="mt-8 flex justify-center">
+                    <button id="load-more" onclick="loadMore()"
+                        class="bg-green-600 text-white px-8 py-2.5 rounded-full hover:bg-green-700 transition font-semibold text-sm hidden">
+                        Load More
+                    </button>
+                </div>
             </div>
         </main>
     </div>

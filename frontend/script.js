@@ -145,6 +145,16 @@ async function testFetch(append = false) {
 }
 checkAuth()
 
+function openSidebar() {
+    document.getElementById("sidebar").classList.remove("-translate-x-full");
+    document.getElementById("sidebar-overlay").classList.remove("hidden");
+}
+
+function closeSidebar() {
+    document.getElementById("sidebar").classList.add("-translate-x-full");
+    document.getElementById("sidebar-overlay").classList.add("hidden");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("file-input").addEventListener("change", function() {
         const label = document.querySelector("label[for='file-input'] p");
