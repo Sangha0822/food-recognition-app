@@ -103,7 +103,7 @@ async function testFetch(append = false) {
         const entries = data.entries;
         const groups = {};
         entries.forEach(food => {
-            const date = new Date(food.logged_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+            const date = new Date(food.logged_at + "Z").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
             if (!groups[date]) groups[date] = [];
             groups[date].push(food);
         });
@@ -119,7 +119,7 @@ async function testFetch(append = false) {
                     <div class="p-3">
                         <h2 class="text-sm font-semibold text-white text-center">${food.final_label}</h2>
                         <p class="text-green-400 text-xs text-center">${food.calories ? food.calories + ' kcal' : ''}</p>
-                        <p class="text-gray-500 text-xs text-center mt-0.5">${new Date(food.logged_at).toLocaleTimeString()}</p>
+                        <p class="text-gray-500 text-xs text-center mt-0.5">${new Date(food.logged_at + "Z").toLocaleTimeString()}</p>
                         <button onclick="deleteFood(${food.id})"
                             class="mt-2 w-full border border-red-500 text-red-400 bg-transparent text-xs px-2 py-1 rounded hover:bg-red-500 hover:text-white transition">
                             Delete
