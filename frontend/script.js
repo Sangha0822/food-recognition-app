@@ -206,6 +206,7 @@ async function uploadFood() {
     }
 
     errorEl.classList.add("hidden");
+    closeSidebar();
     fileInput.value = "";
     labelInput.value = "";
     currentOffset = 0;
