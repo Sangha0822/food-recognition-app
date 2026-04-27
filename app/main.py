@@ -164,11 +164,14 @@ def identify_food(image_bytes: bytes, content_type: str) -> dict:
         model="gemini-2.5-flash",
         contents=[
             genai.types.Part.from_bytes(data=image_bytes, mime_type=content_type),
-            'What food is this? Reply in JSON format only, no extra text: {"food": "food name", "calories": estimated_number}'
+            'What food is this? If it is food, reply in JSON format only, no extra text: {"food": "food name", "calories": estimated_number}. If it is not a food image, return {"food": "not_food", "calories": null}'
         ]
         )
         cleaned = response.text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-        return json.loads(cleaned)
+        result = json.loads(cleaned)
     except Exception:
-        raise HTTPException(status_code=503, detail = "AI is busy, please add a label manually.")
+        raise HTTPException(status_code=503, detail="AI is busy, please add a label manually.")
+    if result["food"] == "not_food":
+        raise HTTPException(status_code=400, detail="The image does not appear to be food.")
+    return result
 
