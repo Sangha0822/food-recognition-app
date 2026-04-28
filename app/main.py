@@ -198,7 +198,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
     return {"access_token": encodedJWT, "token_type": "bearer"}
 
 
-app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 def identify_food(image_bytes: bytes, content_type: str, language: str = "en") -> dict:
