@@ -108,6 +108,13 @@
                     <button id="lang-ko" onclick="setLanguage('ko')"
                         class="flex-1 py-1.5 rounded-md text-xs font-medium transition text-gray-400 hover:text-white">한국어</button>
                 </div>
+                <button onclick="openPasswordModal()"
+                    class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Change Password
+                </button>
                 <button onclick="logout()" id="logout-btn"
                     class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
@@ -150,6 +157,26 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="password-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center px-4">
+        <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-sm border border-gray-700 shadow-xl">
+            <h2 class="text-white font-semibold text-base mb-4">Change Password</h2>
+            <input type="password" id="current-password" placeholder="Current password"
+                class="w-full p-2.5 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="password" id="new-password" placeholder="New password (min 6 characters)"
+                class="w-full p-2.5 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="password" id="confirm-password" placeholder="Confirm new password"
+                class="w-full p-2.5 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 rounded-lg text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-green-500">
+            <p id="password-error" class="text-red-400 text-xs mb-3 hidden"></p>
+            <div class="flex gap-2">
+                <button onclick="closePasswordModal()"
+                    class="flex-1 py-2 rounded-lg border border-gray-600 text-gray-400 hover:text-white text-sm transition">Cancel</button>
+                <button onclick="changePassword()"
+                    class="flex-1 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition">Save</button>
+            </div>
+        </div>
     </div>
 
     <!-- Toast -->

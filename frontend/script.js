@@ -271,6 +271,50 @@ async function uploadFood() {
     testFetch();
 }
 
+function openPasswordModal() {
+    document.getElementById("current-password").value = "";
+    document.getElementById("new-password").value = "";
+    document.getElementById("confirm-password").value = "";
+    document.getElementById("password-error").classList.add("hidden");
+    document.getElementById("password-modal").classList.remove("hidden");
+}
+
+function closePasswordModal() {
+    document.getElementById("password-modal").classList.add("hidden");
+}
+
+async function changePassword() {
+    const currentPwd = document.getElementById("current-password").value;
+    const newPwd = document.getElementById("new-password").value;
+    const confirmPwd = document.getElementById("confirm-password").value;
+    const errorEl = document.getElementById("password-error");
+
+    if (newPwd !== confirmPwd) {
+        errorEl.textContent = "New passwords do not match.";
+        errorEl.classList.remove("hidden");
+        return;
+    }
+
+    const response = await fetch("/me/password", {
+        method: "PATCH",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("access_token"),
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ current_password: currentPwd, new_password: newPwd })
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        errorEl.textContent = data.detail || "Failed to change password.";
+        errorEl.classList.remove("hidden");
+        return;
+    }
+
+    closePasswordModal();
+    showToast("Password changed successfully!");
+}
+
 function showToast(message = "Uploaded successfully!") {
     const toast = document.getElementById("toast");
     toast.textContent = message;

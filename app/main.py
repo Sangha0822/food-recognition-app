@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
 from sqlmodel import Session, select, desc
 from app.database import create_db_and_tables
-from app.models import FoodEntry, UserCreate
+from app.models import FoodEntry, UserCreate, PasswordChange
 from app.database import get_session
 from pathlib import Path
 import uuid
@@ -66,7 +66,18 @@ def set_language(language: str, current_user: User = Depends(get_current_user), 
     return {"language": language}
 
 
-@app.get("/health") # Testing 
+@app.patch("/me/password")
+def change_password(data: PasswordChange, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    if not auth.verify_password(data.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    current_user.hashed_password = auth.hash_password(data.new_password)
+    session.add(current_user)
+    session.commit()
+    return {"message": "Password changed successfully"}
+
+@app.get("/health") # Testing
 def health_check():
     return {"ok": True}
 

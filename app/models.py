@@ -20,3 +20,7 @@ class User(SQLModel, table=True): # What goes INSIDE DB
 class UserCreate(SQLModel): # What the user SENDS to backend
     email: str
     password: str
+
+class PasswordChange(SQLModel):
+    current_password: str
+    new_password: str
