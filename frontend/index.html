@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food AI Journal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 </head>
 
 <body class="bg-gray-900 min-h-screen">
@@ -148,12 +150,36 @@
             </div>
 
             <div class="p-4 md:p-8 flex-1">
-                <div id="food-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"></div>
-                <div class="mt-8 flex justify-center">
-                    <button id="load-more" onclick="loadMore()"
-                        class="bg-green-600 text-white px-8 py-2.5 rounded-full hover:bg-green-700 transition font-semibold text-sm hidden">
-                        Load More
-                    </button>
+                <!-- Tab buttons -->
+                <div class="flex gap-1 bg-gray-800 border border-gray-700 rounded-lg p-1 w-fit mb-6">
+                    <button id="tab-journal" onclick="switchTab('journal')"
+                        class="px-4 py-1.5 rounded-md text-sm font-medium transition bg-gray-600 text-white">Journal</button>
+                    <button id="tab-summary" onclick="switchTab('summary')"
+                        class="px-4 py-1.5 rounded-md text-sm font-medium transition text-gray-400 hover:text-white">Summary</button>
+                </div>
+
+                <!-- Journal view -->
+                <div id="journal-view">
+                    <div id="food-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"></div>
+                    <div class="mt-8 flex justify-center">
+                        <button id="load-more" onclick="loadMore()"
+                            class="bg-green-600 text-white px-8 py-2.5 rounded-full hover:bg-green-700 transition font-semibold text-sm hidden">
+                            Load More
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary view -->
+                <div id="summary-view" class="hidden">
+                    <div class="flex gap-2 mb-6">
+                        <button id="range-7" onclick="loadSummary(7)"
+                            class="px-4 py-1.5 rounded-full text-sm font-medium bg-green-600 text-white transition">7 days</button>
+                        <button id="range-30" onclick="loadSummary(30)"
+                            class="px-4 py-1.5 rounded-full text-sm font-medium bg-gray-700 text-gray-400 hover:text-white transition">30 days</button>
+                    </div>
+                    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                        <canvas id="calorie-chart"></canvas>
+                    </div>
                 </div>
             </div>
         </main>

@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone, timedelta
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Form
 from sqlmodel import Session, select, desc
 from app.database import create_db_and_tables
@@ -76,6 +77,23 @@ def change_password(data: PasswordChange, current_user: User = Depends(get_curre
     session.add(current_user)
     session.commit()
     return {"message": "Password changed successfully"}
+
+@app.get("/entries/summary")
+def get_summary(days: int = 7, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    statement = (
+        select(
+            func.date(FoodEntry.logged_at).label("date"),
+            func.sum(FoodEntry.calories).label("total")
+        )
+        .where(FoodEntry.user_id == current_user.id)
+        .where(FoodEntry.logged_at >= cutoff)
+        .where(FoodEntry.calories.isnot(None))
+        .group_by(func.date(FoodEntry.logged_at))
+        .order_by(func.date(FoodEntry.logged_at))
+    )
+    results = session.execute(statement).all()
+    return [{"date": str(row.date), "calories": int(row.total)} for row in results]
 
 @app.get("/health") # Testing
 def health_check():

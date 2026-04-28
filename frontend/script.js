@@ -326,6 +326,68 @@ function showToast(message = "Uploaded successfully!") {
     }, 2500);
 }
 
+function switchTab(tab) {
+    const isJournal = tab === "journal";
+    document.getElementById("journal-view").classList.toggle("hidden", !isJournal);
+    document.getElementById("summary-view").classList.toggle("hidden", isJournal);
+    document.getElementById("tab-journal").className = `px-4 py-1.5 rounded-md text-sm font-medium transition ${isJournal ? "bg-gray-600 text-white" : "text-gray-400 hover:text-white"}`;
+    document.getElementById("tab-summary").className = `px-4 py-1.5 rounded-md text-sm font-medium transition ${!isJournal ? "bg-gray-600 text-white" : "text-gray-400 hover:text-white"}`;
+    if (!isJournal) loadSummary(7);
+}
+
+let calorieChart = null;
+
+async function loadSummary(days) {
+    // Update range button styles
+    document.getElementById("range-7").className = `px-4 py-1.5 rounded-full text-sm font-medium transition ${days === 7 ? "bg-green-600 text-white" : "bg-gray-700 text-gray-400 hover:text-white"}`;
+    document.getElementById("range-30").className = `px-4 py-1.5 rounded-full text-sm font-medium transition ${days === 30 ? "bg-green-600 text-white" : "bg-gray-700 text-gray-400 hover:text-white"}`;
+
+    const response = await fetch(`/entries/summary?days=${days}`, {
+        headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") }
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+
+    const labels = data.map(d => new Date(d.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }));
+    const calories = data.map(d => d.calories);
+
+    if (calorieChart) calorieChart.destroy();
+
+    Chart.register(ChartDataLabels);
+    const ctx = document.getElementById("calorie-chart").getContext("2d");
+    calorieChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Calories (kcal)",
+                data: calories,
+                backgroundColor: "rgba(34, 197, 94, 0.6)",
+                borderColor: "rgba(34, 197, 94, 1)",
+                borderWidth: 1,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: "#9ca3af" } },
+                datalabels: {
+                    anchor: "end",
+                    align: "top",
+                    color: "#ffffff",
+                    font: { weight: "bold", size: 12 },
+                    formatter: (value) => value + " kcal"
+                }
+            },
+            scales: {
+                x: { ticks: { color: "#9ca3af" }, grid: { color: "#374151" } },
+                y: { ticks: { color: "#9ca3af" }, grid: { color: "#374151" }, beginAtZero: true }
+            }
+        }
+    });
+}
+
 function loadMore() {
     currentOffset += 10;
     testFetch(append = true);
