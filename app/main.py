@@ -52,6 +52,20 @@ def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Dep
         raise HTTPException(status_code=401, detail = "Invalid or expired token")
     return user
 
+@app.get("/me")
+def get_me(current_user: User = Depends(get_current_user)):
+    return {"email": current_user.email, "language": current_user.language}
+
+@app.patch("/me/language")
+def set_language(language: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    if language not in ("en", "ko"):
+        raise HTTPException(status_code=400, detail="Language must be 'en' or 'ko'")
+    current_user.language = language
+    session.add(current_user)
+    session.commit()
+    return {"language": language}
+
+
 @app.get("/health") # Testing 
 def health_check():
     return {"ok": True}
@@ -115,7 +129,7 @@ def create_upload(file: UploadFile =File(...), final_label: Optional[str] = Form
     url_path = f"https://{bucket}.s3.amazonaws.com/{newFileName}"
     calories = None
     if not final_label:
-        result = identify_food(content, file.content_type)
+        result = identify_food(content, file.content_type, current_user.language)
         final_label = result["food"]
         calories = result["calories"]
     food = FoodEntry(image_path = str(url_path), final_label = final_label, user_id = current_user.id, calories=calories)
@@ -158,13 +172,17 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = D
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
-def identify_food(image_bytes: bytes, content_type: str) -> dict:
+def identify_food(image_bytes: bytes, content_type: str, language: str = "en") -> dict:
+    if language == "ko":
+        prompt = '이 음식은 무엇인가요? 음식이라면 JSON 형식으로만 답하세요, 추가 텍스트 없이: {"food": "음식 이름", "calories": 예상_숫자}. 음식 이미지가 아니라면 {"food": "not_food", "calories": null} 을 반환하세요.'
+    else:
+        prompt = 'What food is this? If it is food, reply in JSON format only, no extra text: {"food": "food name", "calories": estimated_number}. If it is not a food image, return {"food": "not_food", "calories": null}'
     try:
         response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=[
             genai.types.Part.from_bytes(data=image_bytes, mime_type=content_type),
-            'What food is this? If it is food, reply in JSON format only, no extra text: {"food": "food name", "calories": estimated_number}. If it is not a food image, return {"food": "not_food", "calories": null}'
+            prompt
         ]
         )
         cleaned = response.text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()

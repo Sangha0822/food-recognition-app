@@ -15,6 +15,7 @@ class User(SQLModel, table=True): # What goes INSIDE DB
     email: str
     hashed_password: str
     created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    language: Optional[str] = Field(default="en")
 
 class UserCreate(SQLModel): # What the user SENDS to backend
     email: str

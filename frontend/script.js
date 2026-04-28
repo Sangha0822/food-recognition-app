@@ -5,11 +5,45 @@ function checkAuth() {
         document.getElementById("auth-section").classList.add("hidden");
         document.getElementById("main-app").classList.remove("hidden");
         document.getElementById("logout-btn").classList.remove("hidden");
+        loadUserInfo();
         testFetch();
     } else {
         document.getElementById("auth-section").classList.remove("hidden");
         document.getElementById("main-app").classList.add("hidden");
         document.getElementById("logout-btn").classList.add("hidden");
+    }
+}
+
+async function loadUserInfo() {
+    const response = await fetch("/me", {
+        headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") }
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    updateLangToggle(data.language || "en");
+}
+
+async function setLanguage(lang) {
+    await fetch(`/me/language?language=${lang}`, {
+        method: "PATCH",
+        headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") }
+    });
+    updateLangToggle(lang);
+}
+
+function updateLangToggle(lang) {
+    const enBtn = document.getElementById("lang-en");
+    const koBtn = document.getElementById("lang-ko");
+    if (lang === "ko") {
+        koBtn.classList.add("bg-gray-600", "text-white");
+        koBtn.classList.remove("text-gray-400");
+        enBtn.classList.remove("bg-gray-600", "text-white");
+        enBtn.classList.add("text-gray-400");
+    } else {
+        enBtn.classList.add("bg-gray-600", "text-white");
+        enBtn.classList.remove("text-gray-400");
+        koBtn.classList.remove("bg-gray-600", "text-white");
+        koBtn.classList.add("text-gray-400");
     }
 }
 
@@ -155,10 +189,31 @@ function closeSidebar() {
     document.getElementById("sidebar-overlay").classList.add("hidden");
 }
 
+function setFileSelected(file) {
+    const label = document.getElementById("file-label");
+    const icon = document.getElementById("upload-icon");
+    const nameEl = document.getElementById("file-name-text");
+    const subEl = document.getElementById("file-sub-text");
+    if (file) {
+        label.classList.replace("border-gray-600", "border-green-500");
+        icon.classList.replace("text-gray-500", "text-green-400");
+        nameEl.textContent = file.name;
+        nameEl.classList.replace("text-gray-400", "text-white");
+        subEl.textContent = "Ready to upload";
+        subEl.classList.replace("text-gray-600", "text-green-500");
+    } else {
+        label.classList.replace("border-green-500", "border-gray-600");
+        icon.classList.replace("text-green-400", "text-gray-500");
+        nameEl.textContent = "Click to upload image";
+        nameEl.classList.replace("text-white", "text-gray-400");
+        subEl.textContent = "JPG, PNG, WEBP, HEIC";
+        subEl.classList.replace("text-green-500", "text-gray-600");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("file-input").addEventListener("change", function() {
-        const label = document.querySelector("label[for='file-input'] p");
-        label.textContent = this.files[0] ? this.files[0].name : "Click to upload image";
+        setFileSelected(this.files[0] || null);
     });
 });
 
@@ -209,6 +264,7 @@ async function uploadFood() {
     closeSidebar();
     fileInput.value = "";
     labelInput.value = "";
+    setFileSelected(null);
     currentOffset = 0;
     testFetch();
 }
