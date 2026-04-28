@@ -4,8 +4,23 @@ A full-stack AI-powered food journal that automatically identifies food from pho
 
 **Live Demo:** https://food-recognition-app-7rtx.onrender.com
 
-![Login screen](screenshots/login.png)
-![Main app](screenshots/mainPage.png)
+---
+
+## Screenshots
+
+![Login](screenshots/login.png)
+
+![Main Journal](screenshots/mainPage.png)
+
+![Calorie Summary](screenshots/calSummary.png)
+
+<table>
+  <tr>
+    <td><img src="screenshots/uploadFood.png" alt="Upload Food"/></td>
+    <td><img src="screenshots/changePWD.png" alt="Change Password"/></td>
+    <td><img src="screenshots/languageChange.png" alt="Language Toggle"/></td>
+  </tr>
+</table>
 
 ---
 
@@ -22,6 +37,8 @@ A full-stack AI-powered food journal that automatically identifies food from pho
 - **Mobile responsive** — sidebar with hamburger menu for small screens
 - **Image storage on AWS S3** — uploaded images persist across deployments
 
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -33,6 +50,8 @@ A full-stack AI-powered food journal that automatically identifies food from pho
 | AI | Google Gemini Vision API |
 | Storage | AWS S3 |
 | Deployment | Render |
+
+---
 
 ## Running Locally
 
@@ -59,6 +78,8 @@ uvicorn app.main:app --reload
 ```
 
 Open `http://127.0.0.1:8000`
+
+---
 
 ## Running Tests
 
