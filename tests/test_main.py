@@ -94,3 +94,42 @@ def test_delete_other_users_entry_forbidden():
     # User2 tries to delete user1's entry — should get 403
     response = client.delete(f"/entries/{entry_id}", headers={"Authorization": f"Bearer {token2}"})
     assert response.status_code == 403
+
+def test_get_me():
+    client.post("/register", json={"email": "test@test.com", "password": "abc123"})
+    login = client.post("/login", data={"username": "test@test.com", "password": "abc123"})
+    token = login.json()["access_token"]
+
+    response = client.get("/me", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["email"] == "test@test.com"
+    assert response.json()["language"] == "en"
+
+def test_get_me_requires_auth():
+    response = client.get("/me")
+    assert response.status_code == 401
+
+def test_set_language():
+    client.post("/register", json={"email": "test@test.com", "password": "abc123"})
+    login = client.post("/login", data={"username": "test@test.com", "password": "abc123"})
+    token = login.json()["access_token"]
+
+    response = client.patch("/me/language?language=ko", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["language"] == "ko"
+
+    # Verify it persisted
+    me = client.get("/me", headers={"Authorization": f"Bearer {token}"})
+    assert me.json()["language"] == "ko"
+
+def test_set_language_invalid():
+    client.post("/register", json={"email": "test@test.com", "password": "abc123"})
+    login = client.post("/login", data={"username": "test@test.com", "password": "abc123"})
+    token = login.json()["access_token"]
+
+    response = client.patch("/me/language?language=fr", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 400
+
+def test_set_language_requires_auth():
+    response = client.patch("/me/language?language=ko")
+    assert response.status_code == 401
