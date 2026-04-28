@@ -218,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function deleteFood(id){
+    if (!confirm("Delete this entry?")) return;
     const response = await fetch(`/entries/${id}`, {
         method: "DELETE",
         headers: { "Authorization": "Bearer " + localStorage.getItem("access_token") }
@@ -262,11 +263,23 @@ async function uploadFood() {
 
     errorEl.classList.add("hidden");
     closeSidebar();
+    showToast();
     fileInput.value = "";
     labelInput.value = "";
     setFileSelected(null);
     currentOffset = 0;
     testFetch();
+}
+
+function showToast(message = "Uploaded successfully!") {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.remove("opacity-0");
+    toast.classList.add("opacity-100");
+    setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+    }, 2500);
 }
 
 function loadMore() {
